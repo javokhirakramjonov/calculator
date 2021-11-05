@@ -2,6 +2,10 @@
 #define CALCULATOR_H
 
 #include <QMainWindow>
+#include <QFile>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Calculator; }
@@ -24,5 +28,6 @@ private slots:
     void perpr();
     void delpr();
     void gofalse();
+    void on_save_triggered();
 };
 #endif // CALCULATOR_H

@@ -8,6 +8,7 @@ bool subTrigger = false;
 bool addTrigger = false;
 bool perTrigger = false;
 bool eq = false;
+QString history, temp;
 
 Calculator::Calculator(QWidget *parent)
     : QMainWindow(parent)
@@ -80,10 +81,12 @@ void Calculator::numpr()
 
 void Calculator::mathpr()
 {
+
     QString displayVal = ui->Display->text();
     if(!(divTrigger || mulTrigger || subTrigger || addTrigger))
     {
         fulval = displayVal.toDouble();
+        temp = QString::number(fulval);
     }
     gofalse();
     QPushButton *button = (QPushButton *)sender();
@@ -118,13 +121,16 @@ void Calculator::equalpr()
         if(addTrigger)
         {
             sol = fulval + curval;
+            temp += "+";
         }
         else if(subTrigger)
         {
             sol = fulval - curval;
+            temp += "-";
         }
         else if(divTrigger)
         {
+            temp += "/";
             if(curval == 0)
                 iszero = true;
             else
@@ -133,18 +139,24 @@ void Calculator::equalpr()
         else if(mulTrigger)
         {
             sol = fulval * curval;
+            temp += "*";
         }
     }
+    temp += QString::number(curval);
     fulval = sol;
     if(iszero)
     {
         ui->Display->setText("ERROR");
+        temp += "=ERROR\n";
         fulval = 0;
     }
     else
     {
         ui->Display->setText(QString::number(sol));
+        temp += "=" + QString::number(sol) + "\n";
     }
+    history += temp;
+    temp = "";
     eq = true;
     gofalse();
 }
@@ -158,6 +170,9 @@ void Calculator::perpr()
     else
         sol = disv.toDouble() / 100.0;
     ui->Display->setText(QString::number(sol));
+    temp += "%=" + QString::number(sol) + "\n";
+    history += temp;
+    temp = "";
 }
 
 void Calculator::delpr()
@@ -182,3 +197,18 @@ void Calculator::gofalse()
     subTrigger = false;
     addTrigger = false;
 }
+
+void Calculator::on_save_triggered()
+{
+    QString saveas = QFileDialog::getSaveFileName(this, "Save as");
+    QFile filesave(saveas);
+    if(!filesave.open(QFile::WriteOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, "Warning", "Cannot save file : " + filesave.errorString());
+        return;
+    }
+    QTextStream out(&filesave);
+    out << history;
+    filesave.close();
+}
+
